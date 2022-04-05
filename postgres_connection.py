@@ -5,7 +5,6 @@ import json
 
 def insert_history_data(data):   
     data = json.loads(data)
-    print("connected postgres")
     params = config()
     connection = psycopg2.connect(**params)
     print("connected postgres")
@@ -19,6 +18,7 @@ def insert_history_data(data):
 def get_data_by_userid(user_id):
     params = config()
     connection = psycopg2.connect(**params)
+    print("connected postgres")
     crsr = connection.cursor()
     query = " select id, o.product_id, o.quantity, o.order_id, r.user_id, p.category_id from order_items o inner join orders r on o.order_id = r.order_id  inner join products p on o.product_id = p.product_id where user_id ="+ "'" + user_id + "'"
     crsr.execute(query)
@@ -29,6 +29,7 @@ def get_data_by_userid(user_id):
 def get_history_by_userid(user_id):
     params = config()
     connection = psycopg2.connect(**params)
+    print("connected postgres")
     crsr = connection.cursor()
     query = " select properties from history where userid ="+ "'" + user_id + "' order by clicked_date desc limit 10"
     crsr.execute(query)
@@ -43,6 +44,7 @@ def get_history_by_userid(user_id):
 def delete_user_history_byId(user_id,product_id):
     params = config()
     connection = psycopg2.connect(**params)
+    print("connected postgres")
     crsr = connection.cursor()
     query = " delete from history where userid ="+ "'" + user_id + "' and properties =" +  "'" + product_id + "'"
     crsr.execute(query)
@@ -50,15 +52,10 @@ def delete_user_history_byId(user_id,product_id):
 
 def get_recommodations(user_id):
     params = config()
-    print("1")
     connection = psycopg2.connect(**params)
-    print("2")
     crsr = connection.cursor()
-    print("3")
     query = " select distinct p.category_id, count(h.properties) products_count   from history h inner join products p on h.properties = p.product_id where h.userid= "+  "'" + user_id + "'" + " group by p.category_id order by products_count desc limit 3"
-    print("4")
     crsr.execute(query)
-    print("5")
 
     categories = crsr.fetchall()
     print("categories",categories)
