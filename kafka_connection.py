@@ -7,7 +7,7 @@ from postgres_connection import *
 import time
 
 IP = "127.0.0.1:9092"
-TOPIC = 'deneme'
+TOPIC = 'history'
 
 def send_data_to_kafka():
     obj =datetime.datetime.now()
@@ -16,7 +16,6 @@ def send_data_to_kafka():
                         json.dumps(x).encode('utf-8'))
     productViews = pd.read_json('product-views.json', lines=True, orient='records')        
     ordersDataFrame = pd.DataFrame(productViews)
-    # print("latest",ordersDataFrame.tail(0))
     for index,line in ordersDataFrame.iterrows():
         _date = obj + datetime.timedelta(days=1*index,hours=1*index)
         data = {'event':line['event'],'messageId':line['messageid'],'userId':line['userid'],
@@ -32,7 +31,6 @@ def consume_from_kafka():
         bootstrap_servers=[IP],
         group_id='my-group')
     for message in consumer:
-        print("message",message.value)
         insert_history_data(message.value)    
     KafkaConsumer.close()
     return 'success'
